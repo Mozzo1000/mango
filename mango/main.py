@@ -2,40 +2,42 @@ from argparse import ArgumentParser
 import markdown2
 import os
 import shutil
-import json
 import sys
-from config import get_config_setting, generate_config, check_config_exists
+from datetime import datetime
+from jinja2 import Environment, FileSystemLoader
 from defaults import create_default_files
 from http.server import HTTPServer
 from httpserver import SimpleServer
 
+CONTENT_FOLDER = 'content'
+TEMPLATE_FOLDER = 'templates'
+OUTPUT_FOLDER = 'output'
+STATIC_FOLDER = 'static'
+OUTPUT_POST_FOLDER = OUTPUT_FOLDER + '/posts'
+
 
 def main():
-    global head_file
-    global foot_file
-
     parser = ArgumentParser(description='')
-    parser.add_argument('--file', help='Input file')
-    parser.add_argument('--layout', help='Layout file')
-    parser.add_argument('--config', help='Config file')
-    parser.add_argument('--generate-config', help='Generate config file', action='store_true')
+    parser.add_argument('path', default='')
     parser.add_argument('--create-project', help='Create a default project folder structure')
     parser.add_argument('--server', help='Run a development server', action='store_true')
+    parser.add_argument('--rebuild', help='Rebuilds all files', action='store_true')
 
-    if parser.parse_args().create_project:
+    if parser.parse_args().path:
+        print('PATH SUPPLIED: ' + parser.parse_args().path)
+
+    if parser.parse_args().rebuild:
+        rebuild(folder=parser.parse_args().path)
+    elif parser.parse_args().create_project:
         project_name = parser.parse_args().create_project
         if os.path.exists(project_name):
             print('Folder already exists, please use a non existing folder.')
         else:
             os.makedirs(project_name)
-            os.makedirs(project_name + '/include')
-            os.makedirs(project_name + '/partials')
-            os.makedirs(project_name + '/layouts')
-            os.makedirs(project_name + '/posts')
-            generate_config('partials/header.html', 'layouts/default.html', 'partials/footer.html', location=project_name + '/')
+            os.makedirs(project_name + '/content')
+            os.makedirs(project_name + '/static')
+            os.makedirs(project_name + '/templates')
             create_default_files(project_name)
-    elif parser.parse_args().generate_config:
-            generate_config('', '', '')
     elif parser.parse_args().server:
         try:
             server = HTTPServer(('localhost', 8080), SimpleServer)
@@ -45,101 +47,76 @@ def main():
             print('Shutting down the web server')
             sys.exit()
             server.socket.close()
-    else:
-        if os.path.exists('output'):
+
+
+def rebuild(folder=''):
+    POSTS = {}
+
+    for markdown_post in os.listdir(folder + CONTENT_FOLDER):
+        file_path = os.path.join(folder + CONTENT_FOLDER, markdown_post)
+
+        with open(file_path, 'r') as file:
+            POSTS[markdown_post] = markdown2.markdown(file.read(), extras=['metadata'])
+
+    POSTS = {
+        post: POSTS[post] for post in sorted(POSTS, key=lambda post: datetime.strptime(POSTS[post].metadata['date'], '%Y-%m-%d'), reverse=True)
+    }
+
+    create_output_folder(base_dir=folder, overwrite=True)
+
+    env = Environment(loader=FileSystemLoader(folder + 'templates'))
+    blog_template = env.get_template('blog.html')
+    post_template = env.get_template('post.html')
+    index_template = env.get_template('index.html')
+    projects_template = env.get_template('projects.html')
+
+    posts_metadata = [POSTS[post].metadata for post in POSTS]
+    blog_html = blog_template.render(posts=posts_metadata)
+    with open(folder + OUTPUT_FOLDER + '/blog.html', 'w') as file:
+        file.write(blog_html)
+    index_html = index_template.render()
+    with open(folder + OUTPUT_FOLDER + '/index.html', 'w') as file:
+        file.write(index_html)
+    projects_html = projects_template.render()
+    with open(folder + OUTPUT_FOLDER + '/projects.html', 'w') as file:
+        file.write(projects_html)
+
+    for post in POSTS:
+        post_metadata = POSTS[post].metadata
+
+        post_data = {
+            'content': POSTS[post],
+            'title': post_metadata['title'],
+            'date': post_metadata['date'],
+            'author': post_metadata['author']
+        }
+
+        post_html = post_template.render(post=post_data)
+        post_file_path = folder + OUTPUT_POST_FOLDER + '/{slug}.html'.format(slug=post_metadata['slug'])
+
+        print(os.path.dirname(post_file_path))
+        os.makedirs(os.path.dirname(post_file_path), exist_ok=True)
+        with open(post_file_path, 'w') as file:
+            file.write(post_html)
+
+    copytree(folder + STATIC_FOLDER, folder + OUTPUT_FOLDER)
+
+
+def create_output_folder(base_dir='', overwrite=False):
+    if os.path.exists(base_dir + OUTPUT_FOLDER):
+        if not overwrite:
             print('OUTPUT DIRECTORY ALREADY EXISTS!')
             answer = input('Do you want to overwrite? (y/n): ')
             if answer == 'y':
-                shutil.rmtree('output')
+                shutil.rmtree(base_dir + OUTPUT_FOLDER)
                 print("OUTPUT DIRECTORY DELETED, CONTINUING..")
-                os.makedirs('output')
-                if not os.path.exists('output/posts'):
-                    os.makedirs('output/posts')
+                os.makedirs(base_dir + OUTPUT_FOLDER)
         else:
-            os.makedirs('output')
-            if not os.path.exists('output/posts'):
-                os.makedirs('output/posts')
-
-        if check_config_exists and parser.parse_args().config is None:
-            head_file = get_config_setting('partials', 'header')
-            foot_file = get_config_setting('partials', 'footer')
-            layout_file = get_config_setting('layout', 'default')
-        elif parser.parse_args().config:
-            config_file = parser.parse_args().config
-            head_file = get_config_setting('partials', 'header', file_override=config_file)
-            foot_file = get_config_setting('partials', 'footer', file_override=config_file)
-            layout_file = get_config_setting('layout', 'default', file_override=config_file)
-
-        else:
-            print('Error: No head or layout file has been supplied.')
-
-        if parser.parse_args().file:
-            file = open(parser.parse_args().file, 'r')
-            html = markdown2.markdown(file.read(), extras=["metadata"])
-            file.close()
-
-            if 'layout' in html.metadata:
-                add(html.metadata['layout'], html, parser.parse_args().file.replace('.md', '.html'))
-            else:
-                add(layout_file, html, parser.parse_args().file.replace('.md', '.html'))
-
-
-def add(workfile, html, output):
-    with open(workfile, 'r') as file:
-        file_input = file.read()
-
-    if os.path.dirname(output):
-        go_back_var = 1
+            shutil.rmtree(base_dir + OUTPUT_FOLDER)
+            print("OUTPUT DIRECTORY DELETED, CONTINUING..")
+            os.makedirs(base_dir + OUTPUT_FOLDER)
     else:
-        go_back_var = 0
-
-    after_head = insert_head(file_input, go_back_var)
-    after_body = insert_content(after_head, html)
-    after_footer = insert_footer(after_body)
-
-    if 'posts' in output:
-        if not os.path.isfile('.all_posts.json'):
-            with open('.all_posts.json', mode='w') as f:
-                f.write(json.dumps({'all_posts': []}, indent=2))
-        with open('.all_posts.json', 'r') as json_file:
-            existing_json_file = json.load(json_file)
-            already_exists = False
-            for item in existing_json_file['all_posts']:
-                if output in item['file']:
-                    print('exists ' + str(output))
-                    already_exists = True
-
-            if not already_exists:
-                existing_json_file['all_posts'].append({'file': output, 'title': html.metadata['title']})
-                with open('.all_posts.json', mode='w') as f:
-                     f.write(json.dumps(existing_json_file, indent=2))
-
-    output_file = open('output/' + output, 'w+')
-    output_file.write(after_footer)
-    output_file.close()
-
-    copytree('include', 'output')
-
-
-def insert_head(file_input, go_back_var):
-    go_back_var_replace = ''
-    if go_back_var >= 1:
-        go_back_var_replace = '../'
-    with open(head_file, 'r') as head:
-        file_input = file_input.replace('[[HEAD]]', head.read()).replace('[[DIR]]', go_back_var_replace)
-    return file_input
-
-
-def insert_footer(file_input):
-    with open(foot_file, 'r') as foot:
-        file_input = file_input.replace('[[FOOTER]]', foot.read())
-    return file_input
-
-
-def insert_content(file_input, html):
-    file_input = file_input.replace('[[CONTENT]]', html).replace('[[TITLE]]', html.metadata['title'])\
-        .replace('[[ALLPOSTS]]', 'NOT IMPLEMENTED')
-    return file_input
+        os.makedirs(base_dir + OUTPUT_FOLDER)
 
 
 def copytree(src, dst, symlinks=False, ignore=None):

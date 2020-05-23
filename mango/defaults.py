@@ -1,25 +1,23 @@
+default_index = '''
+    {% extends "layout.html" %}
 
-
-default_header = '''
-    <head>
-        <title>[[TITLE]]</title>
-    </head>
-'''
-
-default_footer = '''
-    <footer>
-        <p>Made with mango</p>
-    </footer>
+    {% block content %}
+        <p>Default index</p>
+    {% endblock %}
 '''
 
 default_layout = '''
     <!DOCTYPE html>
     <html>
-        [[HEAD]]
+        <head>
+            <title>default project title</title>
+        </head>
         <body>
-            [[CONTENT]]
+            {% block content %} {% endblock %}
         </body>
-    [[FOOTER]]
+        <footer>
+            <pMade with mango>
+        </footer>
     </html>
 '''
 
@@ -27,6 +25,7 @@ default_post = '''
 ---
 title: Default title
 date: 2020-04-05
+slug: default-post
 ---
 
 This is the default post.
@@ -34,11 +33,9 @@ This is the default post.
 
 
 def create_default_files(location):
-    with open(location + '/partials/header.html', 'w') as head_file:
-        head_file.write(default_header)
-    with open(location + '/partials/footer.html', 'w') as foot_file:
-        foot_file.write(default_footer)
-    with open(location + '/layouts/default.html', 'w') as layout_file:
+    with open(location + '/templates/index.html', 'w') as index_file:
+        index_file.write(default_index)
+    with open(location + '/templates/layout.html', 'w') as layout_file:
         layout_file.write(default_layout)
-    with open(location + '/posts/posts-01.md', 'w') as post_file:
+    with open(location + '/content/default-post.md', 'w') as post_file:
         post_file.write(default_post)
