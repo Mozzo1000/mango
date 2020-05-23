@@ -27,10 +27,8 @@ class SimpleServer(BaseHTTPRequestHandler):
             if self.path.endswith('.css'):
                 mimetype = 'text/css'
                 sendreply = True
-            if self.path.endswith(''):
-                mimetype = 'text/html'
-                if not '.html' in self.path:
-                    self.path = self.path + '.html'
+            if self.path.endswith('.ico'):
+                mimetype = 'image/ico'
                 sendreply = True
             if sendreply:
                 f = open(curdir + sep + self.path)
