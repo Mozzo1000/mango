@@ -98,7 +98,7 @@ def rebuild(minify, folder=''):
         if markdown_post.endswith('.md'):
             file_path = os.path.join(folder + CONTENT_FOLDER, markdown_post)
             with open(file_path, 'r') as file:
-                POSTS[markdown_post] = markdown2.markdown(file.read(), extras=['metadata'])
+                POSTS[markdown_post] = markdown2.markdown(file.read(), extras=['metadata', 'cuddled-lists'])
 
     POSTS = {
         post: POSTS[post] for post in sorted(POSTS, key=lambda post: datetime.strptime(POSTS[post].metadata['date'], '%Y-%m-%d'), reverse=True)
