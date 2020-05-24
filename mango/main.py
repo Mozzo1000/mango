@@ -47,7 +47,7 @@ def main():
     else:
         print('No config file found, falling back to defaults.')
 
-    SITE_TITLE = get_config_setting('general', 'title', fallback='Default title')
+    SITE_TITLE = get_config_setting('general', 'title', fallback='Default site')
     CONTENT_FOLDER = get_config_setting('build', 'content_folder', fallback='content')
     TEMPLATE_FOLDER = get_config_setting('build', 'template_folder', fallback='templates')
     OUTPUT_FOLDER = get_config_setting('build', 'output_folder', fallback='output')
