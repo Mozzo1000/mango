@@ -8,10 +8,10 @@ import rjsmin
 from csscompressor import compress
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
-from defaults import create_default_files
-from config import get_config_setting, generate_config, check_config_exists, set_config_file, get_config_file
+from mango.defaults import create_default_files
+from mango.config import get_config_setting, generate_config, check_config_exists, set_config_file, get_config_file
 from http.server import HTTPServer
-from httpserver import SimpleServer
+from mango.httpserver import SimpleServer
 
 SITE_TITLE = ''
 CONTENT_FOLDER = ''
