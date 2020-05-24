@@ -7,8 +7,8 @@ A configuration file can be supplied from the root directory of the website. The
 If no configuration file is found or supplied via the `--config` flag, default options will be used. See below for an explanation of all configuration options including there default values.
 `
 
-###Configuration options:
-####General section
+### Configuration options:
+#### General section
 |Option|Default                 |Explanation|
 |---------------|---------------|-----------|
 |title          |Default site   |Title of the website, to be used inside of templates.|
@@ -18,7 +18,7 @@ If no configuration file is found or supplied via the `--config` flag, default o
 |output_post_folder|output/posts|Folder where the generated markdown files from the content folder is stored.   |
 |static_folder|static           |Folder where all static files are stored, such as css, jss, images.   |
 
-####Server section
+#### Server section
 |Option|Default     |Explanation|
 |------|----------- |-----------|
 |host  |localhost|IP address to use when running the builtin dev server.  |
