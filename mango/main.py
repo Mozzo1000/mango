@@ -3,6 +3,9 @@ import markdown2
 import os
 import shutil
 import sys
+import htmlmin
+import rjsmin
+from csscompressor import compress
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
 from defaults import create_default_files
@@ -26,6 +29,7 @@ def main():
     parser.add_argument('--create-project', help='Create a default project folder structure')
     parser.add_argument('--server', help='Run a development server', action='store_true')
     parser.add_argument('--rebuild', help='Rebuilds all files', action='store_true')
+    parser.add_argument('--minify', help='Minifies HTML, CSS and JS files', action='store_true')
 
     if parser.parse_args().path:
         print('PATH SUPPLIED: ' + parser.parse_args().path)
@@ -58,7 +62,7 @@ def main():
     SERVER_PORT = get_config_setting('server', 'port', fallback='8080')
 
     if parser.parse_args().rebuild:
-        rebuild(folder=parser.parse_args().path)
+        rebuild(True if parser.parse_args().minify is True else False, folder=parser.parse_args().path)
     elif parser.parse_args().create_project:
         project_name = parser.parse_args().create_project
         if os.path.exists(project_name):
@@ -83,7 +87,7 @@ def main():
             server.socket.close()
 
 
-def rebuild(folder=''):
+def rebuild(minify, folder=''):
     POSTS = {}
 
     for markdown_post in os.listdir(folder + CONTENT_FOLDER):
@@ -107,12 +111,18 @@ def rebuild(folder=''):
     posts_metadata = [POSTS[post].metadata for post in POSTS]
     blog_html = blog_template.render(posts=posts_metadata, title=SITE_TITLE)
     with open(folder + OUTPUT_FOLDER + '/blog.html', 'w') as file:
+        if minify:
+            blog_html = htmlmin.minify(blog_html, remove_empty_space=True)
         file.write(blog_html)
     index_html = index_template.render(title=SITE_TITLE)
     with open(folder + OUTPUT_FOLDER + '/index.html', 'w') as file:
+        if minify:
+            index_html = htmlmin.minify(index_html, remove_empty_space=True)
         file.write(index_html)
     projects_html = projects_template.render(title=SITE_TITLE)
     with open(folder + OUTPUT_FOLDER + '/projects.html', 'w') as file:
+        if minify:
+            projects_html = htmlmin.minify(projects_html, remove_empty_space=True)
         file.write(projects_html)
 
     for post in POSTS:
@@ -131,9 +141,27 @@ def rebuild(folder=''):
         print(os.path.dirname(post_file_path))
         os.makedirs(os.path.dirname(post_file_path), exist_ok=True)
         with open(post_file_path, 'w') as file:
+            if minify:
+                post_html = htmlmin.minify(post_html, remove_empty_space=True)
             file.write(post_html)
 
     copytree(folder + STATIC_FOLDER, folder + OUTPUT_FOLDER)
+    if minify:
+        minify_css_js(folder + OUTPUT_FOLDER)
+
+
+def minify_css_js(folder):
+    for file in os.listdir(folder):
+        if file.endswith(".css"):
+            with open(os.path.join(folder, file), 'r') as css_file:
+                raw_css = css_file.read()
+                with open(os.path.join(folder, file), 'w') as css_file_minified:
+                    css_file_minified.write(compress(raw_css))
+        if file.endswith(".js"):
+            with open(os.path.join(folder, file), 'r') as js_file:
+                raw_js = js_file.read()
+                with open(os.path.join(folder, file), 'w') as js_file_minified:
+                    js_file_minified.write(rjsmin.jsmin(raw_js))
 
 
 def create_output_folder(base_dir='', overwrite=False):
