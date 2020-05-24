@@ -1,42 +1,56 @@
 from http.server import BaseHTTPRequestHandler
 from os import curdir, sep
+from os.path import splitext
 
 
 class SimpleServer(BaseHTTPRequestHandler):
     def do_GET(self):
-        print(self.path)
         if self.path == '/':
             self.path = '/index.html'
         try:
-            sendreply = False
             if self.path.endswith('.html'):
                 mimetype = 'text/html'
-                sendreply = True
-            if self.path.endswith('.jpg'):
+            elif self.path.endswith('.jpg'):
                 mimetype = 'image/jpg'
-                sendreply = True
-            if self.path.endswith('.png'):
+            elif self.path.endswith('.png'):
                 mimetype = 'image/png'
-                sendreply = True
-            if self.path.endswith('.gif'):
+            elif self.path.endswith('.gif'):
                 mimetype = 'image/gif'
-                sendreply = True
-            if self.path.endswith('.js'):
+            elif self.path.endswith('.js'):
                 mimetype = 'application/javascript'
-                sendreply = True
-            if self.path.endswith('.css'):
+            elif self.path.endswith('.css'):
                 mimetype = 'text/css'
-                sendreply = True
-            if self.path.endswith('.ico'):
+            elif self.path.endswith('.ico'):
                 mimetype = 'image/ico'
-                sendreply = True
-            if sendreply:
+            elif self.path.endswith('.ttf'):
+                mimetype = 'font/ttf'
+            elif self.path.endswith('woff'):
+                mimetype = 'font/woff'
+            else:
+                mimetype = 'text/html'
+
+            path_root, ext = splitext(self.path)
+            if not ext:
+                mimetype = 'text/html'
+                self.path = self.path + '.html'
+
+            if "image" or "font" in mimetype:
+                f = open(curdir + sep + self.path, 'rb')
+                self.send_response(200)
+                self.send_header('Content-type', mimetype)
+                self.end_headers()
+                self.wfile.write(bytes(f.read()))
+                f.close()
+            else:
                 f = open(curdir + sep + self.path)
                 self.send_response(200)
                 self.send_header('Content-type', mimetype)
                 self.end_headers()
                 self.wfile.write(bytes(f.read(), encoding='utf-8'))
                 f.close()
+
             return
         except IOError:
             self.send_error(404, 'File not found: %s' % self.path)
+        except UnicodeDecodeError:
+            self.send_error(500, 'Decode error: %s' % self.path)
