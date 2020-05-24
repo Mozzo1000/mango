@@ -32,7 +32,11 @@ def main():
     parser.add_argument('--minify', help='Minifies HTML, CSS and JS files', action='store_true')
 
     if parser.parse_args().path:
+        working_path = parser.parse_args().path
         print('PATH SUPPLIED: ' + parser.parse_args().path)
+        if parser.parse_args().path is '.':
+            print(os.getcwd())
+            working_path = os.getcwd() + '/'
 
 
     global SITE_TITLE
@@ -44,9 +48,9 @@ def main():
 
     if parser.parse_args().config:
         set_config_file(parser.parse_args().config)
-    if check_config_exists(location=parser.parse_args().path):
-        if check_config_exists(location=parser.parse_args().path) == 'OTHER_DIR':
-            set_config_file(parser.parse_args().path + 'mango.ini')
+    if check_config_exists(location=working_path):
+        if check_config_exists(location=working_path) == 'OTHER_DIR':
+            set_config_file(working_path + 'mango.ini')
         print('Using config file: ' + get_config_file())
     else:
         print('No config file found, falling back to defaults.')
@@ -62,7 +66,7 @@ def main():
     SERVER_PORT = get_config_setting('server', 'port', fallback='8080')
 
     if parser.parse_args().rebuild:
-        rebuild(True if parser.parse_args().minify is True else False, folder=parser.parse_args().path)
+        rebuild(True if parser.parse_args().minify is True else False, folder=working_path)
     elif parser.parse_args().create_project:
         project_name = parser.parse_args().create_project
         if os.path.exists(project_name):
