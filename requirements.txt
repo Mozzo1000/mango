@@ -1,2 +1,5 @@
 markdown2
 jinja2
+htmlmin
+csscompressor
+rjsmin
