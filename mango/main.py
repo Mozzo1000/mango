@@ -80,7 +80,7 @@ def main():
             create_default_files(project_name)
     elif parser.parse_args().generate_config:
         generate_config('Default site', '')
-    elif parser.parse_args().server:
+    if parser.parse_args().server:
         try:
             server = HTTPServer((SERVER_HOST, int(SERVER_PORT)), SimpleServer)
             print('Running web server on http://' + SERVER_HOST + ':' + SERVER_PORT + '(Press CTRL+C to quit)')
