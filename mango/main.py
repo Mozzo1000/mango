@@ -42,10 +42,9 @@ def main():
     if parser.parse_args().path:
         working_path = parser.parse_args().path
         WORKING_PATH = working_path
-        print('PATH SUPPLIED: ' + parser.parse_args().path)
         if parser.parse_args().path is '.':
-            print(os.getcwd())
             working_path = os.getcwd() + '/'
+        print('PATH SUPPLIED: ' + working_path)
 
     global SITE_TITLE
     global CONTENT_FOLDER
@@ -162,7 +161,6 @@ def rebuild(minify, folder=''):
         post_html = post_template.render(post=post_data, title=SITE_TITLE)
         post_file_path = folder + OUTPUT_POST_FOLDER + '/{slug}.html'.format(slug=post_metadata['slug'])
 
-        print(os.path.dirname(post_file_path))
         os.makedirs(os.path.dirname(post_file_path), exist_ok=True)
         with open(post_file_path, 'w') as file:
             if minify:
