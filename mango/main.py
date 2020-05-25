@@ -111,6 +111,7 @@ def main():
 
 
 def rebuild(minify, folder=''):
+    start_time = time.perf_counter()
     POSTS = {}
 
     for markdown_post in os.listdir(folder + CONTENT_FOLDER):
@@ -171,6 +172,9 @@ def rebuild(minify, folder=''):
     if minify:
         minify_css_js(folder + OUTPUT_FOLDER)
 
+    end_timer = time.perf_counter()
+    print(f'[REBUILD] : Rebuild completed in {end_timer - start_time:0.4f} seconds')
+
 
 def minify_css_js(folder):
     for file in os.listdir(folder):
@@ -204,7 +208,6 @@ def create_output_folder(base_dir='', overwrite=False):
                 os.makedirs(base_dir + OUTPUT_FOLDER)
         else:
             shutil.rmtree(base_dir + OUTPUT_FOLDER)
-            print("OUTPUT DIRECTORY DELETED, CONTINUING..")
             os.makedirs(base_dir + OUTPUT_FOLDER)
     else:
         os.makedirs(base_dir + OUTPUT_FOLDER)
