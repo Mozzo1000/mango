@@ -3,11 +3,14 @@ import markdown2
 import os
 import shutil
 import sys
+import time
 import htmlmin
 import rjsmin
 from csscompressor import compress
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
+from watchdog.observers import Observer
+from watchdog.events import PatternMatchingEventHandler
 from mango.defaults import create_default_files
 from mango.config import get_config_setting, generate_config, check_config_exists, set_config_file, get_config_file
 from http.server import HTTPServer
@@ -20,6 +23,8 @@ OUTPUT_FOLDER = ''
 OUTPUT_POST_FOLDER = ''
 STATIC_FOLDER = ''
 
+WORKING_PATH = ''
+
 
 def main():
     parser = ArgumentParser(description='')
@@ -30,14 +35,17 @@ def main():
     parser.add_argument('--server', help='Run a development server', action='store_true')
     parser.add_argument('--rebuild', help='Rebuilds all files', action='store_true')
     parser.add_argument('--minify', help='Minifies HTML, CSS and JS files', action='store_true')
+    parser.add_argument('--watch', help='Watch directory and automatically rebuild', action='store_true')
+
+    global WORKING_PATH
 
     if parser.parse_args().path:
         working_path = parser.parse_args().path
+        WORKING_PATH = working_path
         print('PATH SUPPLIED: ' + parser.parse_args().path)
         if parser.parse_args().path is '.':
             print(os.getcwd())
             working_path = os.getcwd() + '/'
-
 
     global SITE_TITLE
     global CONTENT_FOLDER
@@ -89,6 +97,18 @@ def main():
             print('Shutting down the web server')
             sys.exit()
             server.socket.close()
+    if parser.parse_args().watch:
+        event_handler = PatternMatchingEventHandler(patterns='*', ignore_patterns=['output/*'], ignore_directories=True)
+        event_handler.on_modified = watch_on_modified
+        observer = Observer()
+        observer.schedule(event_handler, working_path, recursive=True)
+        observer.start()
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+        observer.join()
 
 
 def rebuild(minify, folder=''):
@@ -166,6 +186,13 @@ def minify_css_js(folder):
                 raw_js = js_file.read()
                 with open(os.path.join(folder, file), 'w') as js_file_minified:
                     js_file_minified.write(rjsmin.jsmin(raw_js))
+
+
+def watch_on_modified(event):
+    if 'output' in str(event.src_path):
+        pass
+    else:
+        rebuild(False, folder=WORKING_PATH)
 
 
 def create_output_folder(base_dir='', overwrite=False):
