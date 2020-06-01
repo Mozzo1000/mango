@@ -1,4 +1,6 @@
 import xml.etree.cElementTree as ET
+from urllib.parse import urlparse
+from mango.config import get_config_setting
 
 
 class Sitemap:
@@ -8,6 +10,9 @@ class Sitemap:
         self.root.attrib['xmlns'] = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
     def add_sitemap(self, url, modified, change='monthly', priority='0.8'):
+        if get_config_setting('sitemap', 'use_html_extension', fallback=False):
+            if not urlparse(url).path == '':
+                url = url + '.html'
         doc = ET.SubElement(self.root, 'url')
         ET.SubElement(doc, 'loc').text = url
         ET.SubElement(doc, 'lastmod').text = modified

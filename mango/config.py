@@ -15,6 +15,9 @@ def generate_config(title, location=''):
     config.set('general', 'static_folder', 'static')
     config.set('general', 'base_url', 'http://example.com')
 
+    config.add_section('sitemap')
+    config.set('sitemap', 'use_html_extension', False)
+
     config.add_section('server')
     config.set('server', 'host', 'localhost')
     config.set('server', 'port', '8080')

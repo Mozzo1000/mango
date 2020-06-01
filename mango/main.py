@@ -145,7 +145,7 @@ def rebuild(minify, folder=''):
         if minify:
             blog_html = htmlmin.minify(blog_html, remove_empty_space=True)
         file.write(blog_html)
-        sitemap.add_sitemap(BASE_URL + '/blog.html', current_date, change='weekly')
+        sitemap.add_sitemap(BASE_URL + '/blog', current_date, change='weekly')
     index_html = index_template.render(title=SITE_TITLE)
     with open(folder + OUTPUT_FOLDER + '/index.html', 'w') as file:
         if minify:
@@ -157,7 +157,7 @@ def rebuild(minify, folder=''):
         if minify:
             projects_html = htmlmin.minify(projects_html, remove_empty_space=True)
         file.write(projects_html)
-        sitemap.add_sitemap(BASE_URL + '/projects.html', current_date, change='weekly')
+        sitemap.add_sitemap(BASE_URL + '/projects', current_date, change='weekly')
 
     for post in POSTS:
         post_metadata = POSTS[post].metadata
@@ -171,7 +171,7 @@ def rebuild(minify, folder=''):
 
         post_html = post_template.render(post=post_data, title=SITE_TITLE)
         post_file_path = folder + OUTPUT_POST_FOLDER + '/{slug}.html'.format(slug=post_metadata['slug'])
-        post_url = OUTPUT_POST_FOLDER.replace(OUTPUT_FOLDER, '') + '/{slug}.html'.format(slug=post_metadata['slug'])
+        post_url = OUTPUT_POST_FOLDER.replace(OUTPUT_FOLDER, '') + '/{slug}'.format(slug=post_metadata['slug'])
 
         os.makedirs(os.path.dirname(post_file_path), exist_ok=True)
         with open(post_file_path, 'w') as file:
