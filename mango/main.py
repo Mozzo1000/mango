@@ -15,6 +15,7 @@ from mango.defaults import create_default_files
 from mango.config import get_config_setting, generate_config, check_config_exists, set_config_file, get_config_file
 from http.server import HTTPServer
 from mango.httpserver import SimpleServer
+from mango.sitemap import Sitemap
 
 SITE_TITLE = ''
 CONTENT_FOLDER = ''
@@ -117,6 +118,9 @@ def rebuild(minify, folder=''):
     start_time = time.perf_counter()
     POSTS = {}
 
+    current_date = str(datetime.date(datetime.now()))
+    sitemap = Sitemap(folder + OUTPUT_FOLDER)
+
     for markdown_post in os.listdir(folder + CONTENT_FOLDER):
         if markdown_post.endswith('.md'):
             file_path = os.path.join(folder + CONTENT_FOLDER, markdown_post)
@@ -141,16 +145,19 @@ def rebuild(minify, folder=''):
         if minify:
             blog_html = htmlmin.minify(blog_html, remove_empty_space=True)
         file.write(blog_html)
+        sitemap.add_sitemap(BASE_URL + '/blog.html', current_date, change='weekly')
     index_html = index_template.render(title=SITE_TITLE)
     with open(folder + OUTPUT_FOLDER + '/index.html', 'w') as file:
         if minify:
             index_html = htmlmin.minify(index_html, remove_empty_space=True)
         file.write(index_html)
+        sitemap.add_sitemap(BASE_URL, current_date, change='weekly', priority='1.0')
     projects_html = projects_template.render(title=SITE_TITLE)
     with open(folder + OUTPUT_FOLDER + '/projects.html', 'w') as file:
         if minify:
             projects_html = htmlmin.minify(projects_html, remove_empty_space=True)
         file.write(projects_html)
+        sitemap.add_sitemap(BASE_URL + '/projects.html', current_date, change='weekly')
 
     for post in POSTS:
         post_metadata = POSTS[post].metadata
@@ -164,14 +171,17 @@ def rebuild(minify, folder=''):
 
         post_html = post_template.render(post=post_data, title=SITE_TITLE)
         post_file_path = folder + OUTPUT_POST_FOLDER + '/{slug}.html'.format(slug=post_metadata['slug'])
+        post_url = OUTPUT_POST_FOLDER.replace(OUTPUT_FOLDER, '') + '/{slug}.html'.format(slug=post_metadata['slug'])
 
         os.makedirs(os.path.dirname(post_file_path), exist_ok=True)
         with open(post_file_path, 'w') as file:
             if minify:
                 post_html = htmlmin.minify(post_html, remove_empty_space=True)
             file.write(post_html)
+            sitemap.add_sitemap(BASE_URL + post_url, post_metadata['date'])
 
     copytree(folder + STATIC_FOLDER, folder + OUTPUT_FOLDER)
+    sitemap.save_sitemap()
     if minify:
         minify_css_js(folder + OUTPUT_FOLDER)
 
