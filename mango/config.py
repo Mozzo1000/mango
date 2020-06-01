@@ -13,6 +13,7 @@ def generate_config(title, location=''):
     config.set('general', 'output_folder', 'output')
     config.set('general', 'output_post_folder', 'output/posts')
     config.set('general', 'static_folder', 'static')
+    config.set('general', 'base_url', 'http://example.com')
 
     config.add_section('server')
     config.set('server', 'host', 'localhost')

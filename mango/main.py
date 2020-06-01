@@ -22,6 +22,7 @@ TEMPLATE_FOLDER = ''
 OUTPUT_FOLDER = ''
 OUTPUT_POST_FOLDER = ''
 STATIC_FOLDER = ''
+BASE_URL = ''
 
 WORKING_PATH = ''
 
@@ -52,6 +53,7 @@ def main():
     global OUTPUT_FOLDER
     global OUTPUT_POST_FOLDER
     global STATIC_FOLDER
+    global BASE_URL
 
     if parser.parse_args().config:
         set_config_file(parser.parse_args().config)
@@ -68,6 +70,7 @@ def main():
     OUTPUT_FOLDER = get_config_setting('build', 'output_folder', fallback='output')
     OUTPUT_POST_FOLDER = get_config_setting('build', 'output_post_folder', fallback='output/posts')
     STATIC_FOLDER = get_config_setting('build', 'static_folder', fallback='static')
+    BASE_URL = get_config_setting('general', 'base_url', fallback='http://example.com')
 
     SERVER_HOST = get_config_setting('server', 'host', fallback='localhost')
     SERVER_PORT = get_config_setting('server', 'port', fallback='8080')
