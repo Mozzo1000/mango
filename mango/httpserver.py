@@ -1,4 +1,5 @@
-from http.server import BaseHTTPRequestHandler
+import sys
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from os import curdir, sep
 from os.path import splitext
 
@@ -54,3 +55,18 @@ class SimpleServer(BaseHTTPRequestHandler):
             self.send_error(404, 'File not found: %s' % self.path)
         except UnicodeDecodeError:
             self.send_error(500, 'Decode error: %s' % self.path)
+
+
+class WebServer:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.server = HTTPServer((self.host, int(self.port)), SimpleServer)
+
+    def start_server(self):
+        print('Running web server on http://' + self.host + ':' + self.port + '(Press CTRL+C to quit)')
+        self.server.serve_forever()
+
+    def stop_server(self):
+        self.server.socket.close()
+        sys.exit()

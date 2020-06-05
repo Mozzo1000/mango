@@ -14,7 +14,7 @@ from watchdog.events import PatternMatchingEventHandler
 from mango.defaults import create_default_files
 from mango.config import get_config_setting, generate_config, check_config_exists, set_config_file, get_config_file
 from http.server import HTTPServer
-from mango.httpserver import SimpleServer
+from mango.httpserver import SimpleServer, WebServer
 from mango.sitemap import Sitemap
 
 SITE_TITLE = ''
@@ -93,13 +93,10 @@ def main():
         generate_config('Default site', '')
     if parser.parse_args().server:
         try:
-            server = HTTPServer((SERVER_HOST, int(SERVER_PORT)), SimpleServer)
-            print('Running web server on http://' + SERVER_HOST + ':' + SERVER_PORT + '(Press CTRL+C to quit)')
-            server.serve_forever()
+            server = WebServer(SERVER_HOST, SERVER_PORT, working_path)
+            server.start_server()
         except KeyboardInterrupt:
-            print('Shutting down the web server')
-            sys.exit()
-            server.socket.close()
+            server.stop_server()
     if parser.parse_args().watch:
         event_handler = PatternMatchingEventHandler(patterns='*', ignore_patterns=['output/*'], ignore_directories=True)
         event_handler.on_modified = watch_on_modified
