@@ -91,6 +91,23 @@ def main():
             create_default_files(project_name)
     elif parser.parse_args().generate_config:
         generate_config('Default site', '')
+
+    if parser.parse_args().server and parser.parse_args().watch:
+        try:
+            server = WebServer(SERVER_HOST, SERVER_PORT)
+            event_handler = PatternMatchingEventHandler(patterns='*', ignore_patterns=['output/*'],
+                                                        ignore_directories=True)
+            event_handler.on_modified = watch_on_modified
+            observer = Observer()
+            observer.schedule(event_handler, working_path, recursive=True)
+            observer.start()
+            print('[WATCHER] Started watcher')
+            server.start_server()
+        except KeyboardInterrupt:
+            server.stop_server()
+            observer.stop()
+        observer.join()
+
     if parser.parse_args().server:
         try:
             server = WebServer(SERVER_HOST, SERVER_PORT, working_path)
@@ -98,14 +115,13 @@ def main():
         except KeyboardInterrupt:
             server.stop_server()
     if parser.parse_args().watch:
-        event_handler = PatternMatchingEventHandler(patterns='*', ignore_patterns=['output/*'], ignore_directories=True)
-        event_handler.on_modified = watch_on_modified
-        observer = Observer()
-        observer.schedule(event_handler, working_path, recursive=True)
-        observer.start()
         try:
-            while True:
-                time.sleep(1)
+            event_handler = PatternMatchingEventHandler(patterns='*', ignore_patterns=['output/*'], ignore_directories=True)
+            event_handler.on_modified = watch_on_modified
+            observer = Observer()
+            observer.schedule(event_handler, working_path, recursive=True)
+            observer.start()
+            print('[WATCHER] Started watcher')
         except KeyboardInterrupt:
             observer.stop()
         observer.join()
