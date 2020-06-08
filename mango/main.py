@@ -16,6 +16,7 @@ from mango.config import get_config_setting, generate_config, check_config_exist
 from http.server import HTTPServer
 from mango.httpserver import SimpleServer, WebServer
 from mango.sitemap import Sitemap
+from mango.generator import Generator
 
 SITE_TITLE = ''
 CONTENT_FOLDER = ''
@@ -145,32 +146,19 @@ def rebuild(minify, folder=''):
     }
 
     create_output_folder(base_dir=folder, overwrite=True)
-
-    env = Environment(loader=FileSystemLoader(folder + 'templates'))
-    blog_template = env.get_template('blog.html')
-    post_template = env.get_template('post.html')
-    index_template = env.get_template('index.html')
-    projects_template = env.get_template('projects.html')
-
     posts_metadata = [POSTS[post].metadata for post in POSTS]
-    blog_html = blog_template.render(posts=posts_metadata, title=SITE_TITLE)
-    with open(folder + OUTPUT_FOLDER + '/blog.html', 'w') as file:
-        if minify:
-            blog_html = htmlmin.minify(blog_html, remove_empty_space=True)
-        file.write(blog_html)
-        sitemap.add_sitemap(BASE_URL + '/blog', current_date, change='weekly')
-    index_html = index_template.render(title=SITE_TITLE)
-    with open(folder + OUTPUT_FOLDER + '/index.html', 'w') as file:
-        if minify:
-            index_html = htmlmin.minify(index_html, remove_empty_space=True)
-        file.write(index_html)
-        sitemap.add_sitemap(BASE_URL, current_date, change='weekly', priority='1.0')
-    projects_html = projects_template.render(title=SITE_TITLE)
-    with open(folder + OUTPUT_FOLDER + '/projects.html', 'w') as file:
-        if minify:
-            projects_html = htmlmin.minify(projects_html, remove_empty_space=True)
-        file.write(projects_html)
-        sitemap.add_sitemap(BASE_URL + '/projects', current_date, change='weekly')
+
+    page = Generator(folder + OUTPUT_FOLDER, folder + 'templates', BASE_URL,
+                     posts_metadata, sitemap, site_title=SITE_TITLE,
+                     minify_code=minify)
+
+    page.generate_page('blog')
+    page.generate_page('index')
+    page.generate_page('projects')
+
+    post_page = Generator(folder + OUTPUT_POST_FOLDER, folder + 'templates', BASE_URL,
+                          posts_metadata, sitemap, site_title=SITE_TITLE,
+                          minify_code=minify)
 
     for post in POSTS:
         post_metadata = POSTS[post].metadata
@@ -181,17 +169,9 @@ def rebuild(minify, folder=''):
             'date': post_metadata['date'],
             'author': post_metadata['author']
         }
+        os.makedirs(folder + OUTPUT_POST_FOLDER, exist_ok=True)
 
-        post_html = post_template.render(post=post_data, title=SITE_TITLE)
-        post_file_path = folder + OUTPUT_POST_FOLDER + '/{slug}.html'.format(slug=post_metadata['slug'])
-        post_url = OUTPUT_POST_FOLDER.replace(OUTPUT_FOLDER, '') + '/{slug}'.format(slug=post_metadata['slug'])
-
-        os.makedirs(os.path.dirname(post_file_path), exist_ok=True)
-        with open(post_file_path, 'w') as file:
-            if minify:
-                post_html = htmlmin.minify(post_html, remove_empty_space=True)
-            file.write(post_html)
-            sitemap.add_sitemap(BASE_URL + post_url, post_metadata['date'])
+        post_page.generate_page('{slug}'.format(slug=post_metadata['slug']), template_name='post', post=post_data)
 
     copytree(folder + STATIC_FOLDER, folder + OUTPUT_FOLDER)
     sitemap.save_sitemap()
