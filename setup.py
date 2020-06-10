@@ -6,9 +6,17 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
+def get_version():
+    for line in read('mango/__init__.py').splitlines():
+        if line.startswith('__version__'):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")
+
 setup(
     name='mango',
-    version='1.0.0',
+    version=get_version(),
     author='Andreas Backström',
     author_email='mozzo242@gmail.com',
     description='A static site generator developed specifically for andreasbackstrom.se',
