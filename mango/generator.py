@@ -4,7 +4,8 @@ from jinja2 import Environment, FileSystemLoader
 
 
 class Generator:
-    def __init__(self, output_folder, template_folder, url, metadata, sitemap, site_title='Default site', minify_code=False):
+    def __init__(self, output_folder, template_folder, url, metadata,
+                 sitemap, site_title='Default site', minify_code=False):
         self.output_folder = output_folder
         self.template_folder = template_folder
         self.url = url
@@ -24,6 +25,3 @@ class Generator:
                 html = htmlmin.minify(html, remove_empty_space=True)
             file.write(html)
             self.sitemap.add_sitemap(self.url + '/' + name, self.current_date, change='weekly')
-
-
-

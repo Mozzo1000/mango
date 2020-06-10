@@ -88,7 +88,8 @@ def main():
             server.stop_server()
     if parser.parse_args().watch:
         try:
-            event_handler = PatternMatchingEventHandler(patterns='*', ignore_patterns=['output/*'], ignore_directories=True)
+            event_handler = PatternMatchingEventHandler(patterns='*', ignore_patterns=['output/*'],
+                                                        ignore_directories=True)
             event_handler.on_modified = watch_on_modified
             observer = Observer()
             observer.schedule(event_handler, working_path, recursive=True)
@@ -112,7 +113,9 @@ def rebuild(minify, folder=''):
                 POSTS[markdown_post] = markdown2.markdown(file.read(), extras=['metadata', 'cuddled-lists'])
 
     POSTS = {
-        post: POSTS[post] for post in sorted(POSTS, key=lambda post: datetime.strptime(POSTS[post].metadata['date'], '%Y-%m-%d'), reverse=True)
+        post: POSTS[post] for post in sorted(POSTS,
+                                             key=lambda post: datetime.strptime(POSTS[post].metadata['date'],
+                                                                                '%Y-%m-%d'), reverse=True)
     }
     create_output_folder(dir=folder + get_config_setting('build', 'output_folder'), overwrite=True)
 
@@ -143,7 +146,8 @@ def rebuild(minify, folder=''):
 
         post_page.generate_page('{slug}'.format(slug=post_metadata['slug']), template_name='post', post=post_data)
 
-    copy_tree(folder + get_config_setting('build', 'static_folder'), folder + get_config_setting('build', 'output_folder'))
+    copy_tree(folder + get_config_setting('build', 'static_folder'),
+              folder + get_config_setting('build', 'output_folder'))
     sitemap.save_sitemap()
     if minify:
         minify_css_js(folder + get_config_setting('build', 'output_folder'))

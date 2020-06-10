@@ -12,9 +12,9 @@ setup(
     author='Andreas Backström',
     author_email='mozzo242@gmail.com',
     description='A static site generator developed specifically for andreasbackstrom.se',
-    license = 'Apache-2.0',
-    keywords = 'static site generator jinja2 web markdown',
-    install_requires=['markdown2' ,'jinja2', 'htmlmin',
+    license='Apache-2.0',
+    keywords='static site generator jinja2 web markdown',
+    install_requires=['markdown2', 'jinja2', 'htmlmin',
                       'csscompressor', 'rjsmin', 'watchdog',
                       'toml'],
     extras_require={
@@ -29,5 +29,5 @@ setup(
     long_description=read('README.md'),
     classifiers=[
         'Development Status :: 3 - Alpha',
-    ],
+    ]
 )

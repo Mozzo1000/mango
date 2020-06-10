@@ -22,4 +22,3 @@ class Sitemap:
     def save_sitemap(self):
         tree = ET.ElementTree(self.root)
         tree.write(self.location + '/sitemap.xml', encoding='utf-8', xml_declaration=True)
-
