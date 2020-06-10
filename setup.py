@@ -14,7 +14,14 @@ setup(
     description='A static site generator developed specifically for andreasbackstrom.se',
     license = 'Apache-2.0',
     keywords = 'static site generator jinja2 web markdown',
-    install_requires=['markdown2' ,'jinja2', 'htmlmin', 'csscompressor', 'rjsmin'],
+    install_requires=['markdown2' ,'jinja2', 'htmlmin',
+                      'csscompressor', 'rjsmin', 'watchdog',
+                      'toml'],
+    extras_require={
+        'dev': [
+            'flake8'
+        ]
+    },
     packages=['mango'],
     entry_points={
         'console_scripts': ['mango=mango.main:main'],
