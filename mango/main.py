@@ -127,9 +127,9 @@ def rebuild(minify, folder=''):
                      get_config_setting('general', 'base_url'), posts_metadata, sitemap,
                      site_title=get_config_setting('general', 'title'), minify_code=minify)
 
-    page.generate_page('blog')
-    page.generate_page('index')
-    page.generate_page('projects')
+    for html_files in os.listdir(folder + get_config_setting('build', 'template_folder')):
+        if html_files.endswith('.html') and html_files not in get_config_setting('build', 'ignore_files'):
+            page.generate_page(html_files.replace('.html', ''))
 
     post_page = Generator(folder + get_config_setting('build', 'output_post_folder'), folder + 'templates',
                           get_config_setting('general', 'base_url'), posts_metadata, sitemap,
