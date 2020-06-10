@@ -14,7 +14,9 @@ If no configuration file is found or supplied via the `--config` flag, a file wi
 |title          |Default site   |Title of the website, to be used inside of templates.|
 |base_url       |http://example.com   |Url of your website, is used for several things including sitemap generation.|
 
-#### General section
+#### Build section
+|Option|Default                 |Explanation|
+|---------------|---------------|-----------|
 |content_folder |content        |Folder where all markdown content is stored.   |
 |template_folder|templates      |Folder where all templates are stored.   |
 |output_folder  |output         |Folder where the generated output is saved.   |
