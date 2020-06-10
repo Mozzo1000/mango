@@ -1,5 +1,5 @@
 # Mango
-Mango is a static site generator developed specifically for https://simplymozzo.se using the [jinja](https://github.com/pallets/jinja) templating engine.
+Mango is a static site generator developed specifically for https://andreasbackstrom.se using the [jinja](https://github.com/pallets/jinja) templating engine.
 
 ## Configuration file
 A configuration file can be supplied from the root directory of the website. The name of the file should be `mango.toml`
