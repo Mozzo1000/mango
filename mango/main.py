@@ -14,6 +14,7 @@ from mango.config import get_config_setting, generate_config, check_config_exist
 from mango.httpserver import WebServer
 from mango.sitemap import Sitemap
 from mango.generator import Generator
+from mango import __version__
 
 WORKING_PATH = ''
 
@@ -29,6 +30,7 @@ def main():
     parser.add_argument('--minify', help='Minifies HTML, CSS and JS files', action='store_true')
     parser.add_argument('--watch', help='Watch directory and automatically rebuild', action='store_true')
     parser.add_argument('--verbose', help='Show verbose output', action='store_true')
+    parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
 
     global WORKING_PATH
 
