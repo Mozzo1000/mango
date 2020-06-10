@@ -4,3 +4,4 @@ htmlmin
 csscompressor
 rjsmin
 watchdog
+toml
