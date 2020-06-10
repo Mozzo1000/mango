@@ -19,14 +19,6 @@ from mango.httpserver import SimpleServer, WebServer
 from mango.sitemap import Sitemap
 from mango.generator import Generator
 
-SITE_TITLE = ''
-CONTENT_FOLDER = ''
-TEMPLATE_FOLDER = ''
-OUTPUT_FOLDER = ''
-OUTPUT_POST_FOLDER = ''
-STATIC_FOLDER = ''
-BASE_URL = ''
-
 WORKING_PATH = ''
 
 
@@ -50,33 +42,15 @@ def main():
             working_path = os.getcwd() + '/'
         print('PATH SUPPLIED: ' + working_path)
 
-    global SITE_TITLE
-    global CONTENT_FOLDER
-    global TEMPLATE_FOLDER
-    global OUTPUT_FOLDER
-    global OUTPUT_POST_FOLDER
-    global STATIC_FOLDER
-    global BASE_URL
-
     if parser.parse_args().config:
         set_config_file(parser.parse_args().config)
     if check_config_exists(location=working_path):
         if check_config_exists(location=working_path) == 'OTHER_DIR':
-            set_config_file(working_path + 'mango.ini')
+            set_config_file(working_path + 'mango.toml')
         print('Using config file: ' + get_config_file())
     else:
-        print('No config file found, falling back to defaults.')
-
-    SITE_TITLE = get_config_setting('general', 'title', fallback='Default site')
-    CONTENT_FOLDER = get_config_setting('build', 'content_folder', fallback='content')
-    TEMPLATE_FOLDER = get_config_setting('build', 'template_folder', fallback='templates')
-    OUTPUT_FOLDER = get_config_setting('build', 'output_folder', fallback='output')
-    OUTPUT_POST_FOLDER = get_config_setting('build', 'output_post_folder', fallback='output/posts')
-    STATIC_FOLDER = get_config_setting('build', 'static_folder', fallback='static')
-    BASE_URL = get_config_setting('general', 'base_url', fallback='http://example.com')
-
-    SERVER_HOST = get_config_setting('server', 'host', fallback='localhost')
-    SERVER_PORT = get_config_setting('server', 'port', fallback='8080')
+        print('No config file found, creating default config file.')
+        generate_config(working_path)
 
     if parser.parse_args().rebuild:
         rebuild(True if parser.parse_args().minify is True else False, folder=working_path)
@@ -89,14 +63,14 @@ def main():
             os.makedirs(project_name + '/content')
             os.makedirs(project_name + '/static')
             os.makedirs(project_name + '/templates')
-            generate_config(title='Default site', location=project_name + '/')
+            generate_config(location=project_name + '/')
             create_default_files(project_name)
     elif parser.parse_args().generate_config:
-        generate_config('Default site', '')
+        generate_config('')
 
     if parser.parse_args().server and parser.parse_args().watch:
         try:
-            server = WebServer(SERVER_HOST, SERVER_PORT)
+            server = WebServer(get_config_setting('server', 'host'), get_config_setting('server', 'port'))
             event_handler = PatternMatchingEventHandler(patterns='*', ignore_patterns=['output/*'],
                                                         ignore_directories=True)
             event_handler.on_modified = watch_on_modified
@@ -112,7 +86,7 @@ def main():
 
     if parser.parse_args().server:
         try:
-            server = WebServer(SERVER_HOST, SERVER_PORT, working_path)
+            server = WebServer(get_config_setting('server', 'host'), get_config_setting('server', 'port'), working_path)
             server.start_server()
         except KeyboardInterrupt:
             server.stop_server()
@@ -134,32 +108,32 @@ def rebuild(minify, folder=''):
     POSTS = {}
 
     current_date = str(datetime.date(datetime.now()))
-    sitemap = Sitemap(folder + OUTPUT_FOLDER)
+    sitemap = Sitemap(folder + get_config_setting('build', 'output_folder'))
 
-    for markdown_post in os.listdir(folder + CONTENT_FOLDER):
+    for markdown_post in os.listdir(folder + get_config_setting('build', 'content_folder')):
         if markdown_post.endswith('.md'):
-            file_path = os.path.join(folder + CONTENT_FOLDER, markdown_post)
+            file_path = os.path.join(folder + get_config_setting('build', 'content_folder'), markdown_post)
             with open(file_path, 'r') as file:
                 POSTS[markdown_post] = markdown2.markdown(file.read(), extras=['metadata', 'cuddled-lists'])
 
     POSTS = {
         post: POSTS[post] for post in sorted(POSTS, key=lambda post: datetime.strptime(POSTS[post].metadata['date'], '%Y-%m-%d'), reverse=True)
     }
-    create_output_folder(dir=folder + OUTPUT_FOLDER, overwrite=True)
+    create_output_folder(dir=folder + get_config_setting('build', 'output_folder'), overwrite=True)
 
     posts_metadata = [POSTS[post].metadata for post in POSTS]
 
-    page = Generator(folder + OUTPUT_FOLDER, folder + 'templates', BASE_URL,
-                     posts_metadata, sitemap, site_title=SITE_TITLE,
-                     minify_code=minify)
+    page = Generator(folder + get_config_setting('build', 'output_folder'), folder + 'templates',
+                     get_config_setting('general', 'base_url'), posts_metadata, sitemap,
+                     site_title=get_config_setting('general', 'title'), minify_code=minify)
 
     page.generate_page('blog')
     page.generate_page('index')
     page.generate_page('projects')
 
-    post_page = Generator(folder + OUTPUT_POST_FOLDER, folder + 'templates', BASE_URL,
-                          posts_metadata, sitemap, site_title=SITE_TITLE,
-                          minify_code=minify)
+    post_page = Generator(folder + get_config_setting('build', 'output_post_folder'), folder + 'templates',
+                          get_config_setting('general', 'base_url'), posts_metadata, sitemap,
+                          site_title=get_config_setting('general', 'title'), minify_code=minify)
 
     for post in POSTS:
         post_metadata = POSTS[post].metadata
@@ -170,14 +144,14 @@ def rebuild(minify, folder=''):
             'date': post_metadata['date'],
             'author': post_metadata['author']
         }
-        os.makedirs(folder + OUTPUT_POST_FOLDER, exist_ok=True)
+        os.makedirs(folder + get_config_setting('build', 'output_post_folder'), exist_ok=True)
 
         post_page.generate_page('{slug}'.format(slug=post_metadata['slug']), template_name='post', post=post_data)
 
     copy_tree(folder + get_config_setting('build', 'static_folder'), folder + get_config_setting('build', 'output_folder'))
     sitemap.save_sitemap()
     if minify:
-        minify_css_js(folder + OUTPUT_FOLDER)
+        minify_css_js(folder + get_config_setting('build', 'output_folder'))
 
     end_timer = time.perf_counter()
     print(f'[REBUILD] : Rebuild completed in {end_timer - start_time:0.4f} seconds')

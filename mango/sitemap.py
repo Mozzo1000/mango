@@ -10,7 +10,7 @@ class Sitemap:
         self.root.attrib['xmlns'] = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
     def add_sitemap(self, url, modified, change='monthly', priority='0.8'):
-        if get_config_setting('sitemap', 'use_html_extension', fallback=False):
+        if get_config_setting('sitemap', 'use_html_extension'):
             if not urlparse(url).path == '':
                 url = url + '.html'
         doc = ET.SubElement(self.root, 'url')
