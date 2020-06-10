@@ -70,7 +70,7 @@ def main():
 
     if parser.parse_args().server and parser.parse_args().watch:
         try:
-            server = WebServer(get_config_setting('server', 'host'), get_config_setting('server', 'port'))
+            server = WebServer(str(get_config_setting('server', 'host')), str(get_config_setting('server', 'port')))
             event_handler = PatternMatchingEventHandler(patterns='*', ignore_patterns=['output/*'],
                                                         ignore_directories=True)
             event_handler.on_modified = watch_on_modified
@@ -86,7 +86,7 @@ def main():
 
     if parser.parse_args().server:
         try:
-            server = WebServer(get_config_setting('server', 'host'), get_config_setting('server', 'port'), working_path)
+            server = WebServer(str(get_config_setting('server', 'host')), str(get_config_setting('server', 'port')))
             server.start_server()
         except KeyboardInterrupt:
             server.stop_server()
