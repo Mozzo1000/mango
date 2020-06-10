@@ -2,20 +2,16 @@ from argparse import ArgumentParser
 import markdown2
 import os
 import shutil
-import sys
 import time
-import htmlmin
 import rjsmin
 from csscompressor import compress
 from datetime import datetime
-from jinja2 import Environment, FileSystemLoader
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from distutils.dir_util import copy_tree
 from mango.defaults import create_default_files
 from mango.config import get_config_setting, generate_config, check_config_exists, set_config_file, get_config_file
-from http.server import HTTPServer
-from mango.httpserver import SimpleServer, WebServer
+from mango.httpserver import WebServer
 from mango.sitemap import Sitemap
 from mango.generator import Generator
 
@@ -107,7 +103,6 @@ def rebuild(minify, folder=''):
     start_time = time.perf_counter()
     POSTS = {}
 
-    current_date = str(datetime.date(datetime.now()))
     sitemap = Sitemap(folder + get_config_setting('build', 'output_folder'))
 
     for markdown_post in os.listdir(folder + get_config_setting('build', 'content_folder')):
