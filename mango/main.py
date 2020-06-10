@@ -145,8 +145,8 @@ def rebuild(minify, folder=''):
     POSTS = {
         post: POSTS[post] for post in sorted(POSTS, key=lambda post: datetime.strptime(POSTS[post].metadata['date'], '%Y-%m-%d'), reverse=True)
     }
+    create_output_folder(dir=folder + OUTPUT_FOLDER, overwrite=True)
 
-    create_output_folder(base_dir=folder, overwrite=True)
     posts_metadata = [POSTS[post].metadata for post in POSTS]
 
     page = Generator(folder + OUTPUT_FOLDER, folder + 'templates', BASE_URL,
@@ -204,20 +204,20 @@ def watch_on_modified(event):
         rebuild(False, folder=WORKING_PATH)
 
 
-def create_output_folder(base_dir='', overwrite=False):
-    if os.path.exists(base_dir + OUTPUT_FOLDER):
+def create_output_folder(dir='', overwrite=False):
+    if os.path.exists(dir):
         if not overwrite:
             print('OUTPUT DIRECTORY ALREADY EXISTS!')
             answer = input('Do you want to overwrite? (y/n): ')
             if answer == 'y':
-                shutil.rmtree(base_dir + OUTPUT_FOLDER)
+                shutil.rmtree(dir)
                 print("OUTPUT DIRECTORY DELETED, CONTINUING..")
-                os.makedirs(base_dir + OUTPUT_FOLDER)
+                os.makedirs(dir)
         else:
-            shutil.rmtree(base_dir + OUTPUT_FOLDER)
-            os.makedirs(base_dir + OUTPUT_FOLDER)
+            shutil.rmtree(dir)
+            os.makedirs(dir)
     else:
-        os.makedirs(base_dir + OUTPUT_FOLDER)
+        os.makedirs(dir)
 
 
 if __name__ == "__main__":
