@@ -17,6 +17,7 @@ def generate_config(location=''):
         output_folder = "output"
         output_post_folder = "output/posts"
         static_folder = "static"
+        ignore_files = ["layout.html", "post.html"]
         
         [sitemap]
         use_html_extension = "False"
