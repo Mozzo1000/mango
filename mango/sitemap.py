@@ -13,6 +13,11 @@ class Sitemap:
         if get_config_setting('sitemap', 'use_html_extension') == "True":
             if not urlparse(url).path == '':
                 url = url + '.html'
+            if urlparse(url).path == '/index.html':
+                url = url.replace('index.html', '')
+        if urlparse(url).path == '/index':
+            url = url.replace('/index', '')
+        
         doc = ET.SubElement(self.root, 'url')
         ET.SubElement(doc, 'loc').text = url
         ET.SubElement(doc, 'lastmod').text = modified
