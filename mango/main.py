@@ -37,10 +37,10 @@ def main():
 
     if parser.parse_args().path:
         working_path = parser.parse_args().path
-        WORKING_PATH = working_path
         if parser.parse_args().path is '.':
             working_path = os.getcwd() + '/'
         print('PATH SUPPLIED: ' + working_path)
+        WORKING_PATH = working_path
 
     if parser.parse_args().config:
         set_config_file(parser.parse_args().config)
