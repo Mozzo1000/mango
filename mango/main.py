@@ -11,6 +11,7 @@ from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
+from distutils.dir_util import copy_tree
 from mango.defaults import create_default_files
 from mango.config import get_config_setting, generate_config, check_config_exists, set_config_file, get_config_file
 from http.server import HTTPServer
@@ -173,7 +174,7 @@ def rebuild(minify, folder=''):
 
         post_page.generate_page('{slug}'.format(slug=post_metadata['slug']), template_name='post', post=post_data)
 
-    copytree(folder + STATIC_FOLDER, folder + OUTPUT_FOLDER)
+    copy_tree(folder + get_config_setting('build', 'static_folder'), folder + get_config_setting('build', 'output_folder'))
     sitemap.save_sitemap()
     if minify:
         minify_css_js(folder + OUTPUT_FOLDER)
@@ -217,19 +218,6 @@ def create_output_folder(base_dir='', overwrite=False):
             os.makedirs(base_dir + OUTPUT_FOLDER)
     else:
         os.makedirs(base_dir + OUTPUT_FOLDER)
-
-
-def copytree(src, dst, symlinks=False, ignore=None):
-    try:
-        for item in os.listdir(src):
-            s = os.path.join(src, item)
-            d = os.path.join(dst, item)
-            if os.path.isdir(s):
-                shutil.copytree(s, d, symlinks, ignore)
-            else:
-                shutil.copy2(s, d)
-    except FileExistsError:
-        pass
 
 
 if __name__ == "__main__":
