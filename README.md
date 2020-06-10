@@ -1,6 +1,13 @@
 # Mango
 Mango is a static site generator developed specifically for https://andreasbackstrom.se using the [jinja](https://github.com/pallets/jinja) templating engine.
 
+## Features
+* Automatic sitemap generation
+* Supports markdown files for blog-like posts
+* Jinja2 templating
+* Builtin development web server
+
+
 ## Configuration file
 A configuration file can be supplied from the root directory of the website. The name of the file should be `mango.toml`
 
@@ -35,6 +42,18 @@ If no configuration file is found or supplied via the `--config` flag, a file wi
 |host  |localhost|IP address to use when running the builtin dev server.  |
 |port  |8080     |Port address to use when running the builtin dev server.|
 
+## Development
+**Python version tested with:** 3.7.3 
+
+|Development dependencies|
+|------|
+|flake8|
+ 
+### Run linter
+We use the flake8 to check for linting errors in our code. Inside tox.ini there is a configuration set that `flake8`
+will automatically use.
+
+Just run `flake8` in the root directory to run the linter.
 
 ## License
 `mango` is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full license text.
