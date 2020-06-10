@@ -28,6 +28,7 @@ def main():
     parser.add_argument('--rebuild', help='Rebuilds all files', action='store_true')
     parser.add_argument('--minify', help='Minifies HTML, CSS and JS files', action='store_true')
     parser.add_argument('--watch', help='Watch directory and automatically rebuild', action='store_true')
+    parser.add_argument('--verbose', help='Show verbose output', action='store_true')
 
     global WORKING_PATH
 
@@ -49,7 +50,8 @@ def main():
         generate_config(working_path)
 
     if parser.parse_args().rebuild:
-        rebuild(True if parser.parse_args().minify is True else False, folder=working_path)
+        rebuild(True if parser.parse_args().minify is True else False, folder=working_path,
+                verbose=parser.parse_args().verbose)
     elif parser.parse_args().create_project:
         project_name = parser.parse_args().create_project
         if os.path.exists(project_name):
@@ -100,7 +102,7 @@ def main():
         observer.join()
 
 
-def rebuild(minify, folder=''):
+def rebuild(minify, folder='', verbose=False):
     start_time = time.perf_counter()
     POSTS = {}
 
@@ -127,6 +129,8 @@ def rebuild(minify, folder=''):
 
     for html_files in os.listdir(folder + get_config_setting('build', 'template_folder')):
         if html_files.endswith('.html') and html_files not in get_config_setting('build', 'ignore_files'):
+            if verbose:
+                print(f'[BUILD] Compiling {html_files}')
             page.generate_page(html_files.replace('.html', ''))
 
     post_page = Generator(folder + get_config_setting('build', 'output_post_folder'), folder + 'templates',
@@ -143,7 +147,8 @@ def rebuild(minify, folder=''):
             'author': post_metadata['author']
         }
         os.makedirs(folder + get_config_setting('build', 'output_post_folder'), exist_ok=True)
-
+        if verbose:
+            print(f'[BUILD] Compiling {post}')
         post_page.generate_page('{slug}'.format(slug=post_metadata['slug']), template_name='post', post=post_data)
 
     copy_tree(folder + get_config_setting('build', 'static_folder'),
@@ -153,7 +158,7 @@ def rebuild(minify, folder=''):
         minify_css_js(folder + get_config_setting('build', 'output_folder'))
 
     end_timer = time.perf_counter()
-    print(f'[REBUILD] : Rebuild completed in {end_timer - start_time:0.4f} seconds')
+    print(f'[REBUILD] Rebuild completed in {end_timer - start_time:0.4f} seconds')
 
 
 def minify_css_js(folder):
