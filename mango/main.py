@@ -39,11 +39,11 @@ def main():
         WORKING_PATH = working_path
 
     if parser.parse_args().config:
+        print(parser.parse_args().config)
         set_config_file(parser.parse_args().config)
-    if check_config_exists(location=working_path):
+    elif check_config_exists(location=working_path):
         if check_config_exists(location=working_path) == 'OTHER_DIR':
             set_config_file(working_path + 'mango.toml')
-        print('Using config file: ' + get_config_file())
     else:
         print('No config file found, creating default config file.')
         generate_config(working_path)

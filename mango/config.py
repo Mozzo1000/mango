@@ -37,6 +37,7 @@ def get_config_file():
 def set_config_file(file='mango.toml'):
     global FILE_PATH
     FILE_PATH = file
+    print(f'[CONFIG] Using config file: {file}')
 
 
 def get_config():
