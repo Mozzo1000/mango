@@ -3,11 +3,18 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from os import curdir, sep
 from os.path import splitext
 
+ext_path = ''
+
 
 class SimpleServer(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == '/':
-            self.path = '/index.html'
+        if ext_path == '.':
+            self.path = self.path.lstrip('/')
+        else:
+            self.path = ext_path.rstrip('/') + self.path
+        if self.path.endswith('/') or self.path == '':
+            self.path = ext_path.rstrip('/') + '/index.html'
+
         try:
             if self.path.endswith('.html'):
                 mimetype = 'text/html'
@@ -36,14 +43,14 @@ class SimpleServer(BaseHTTPRequestHandler):
                 self.path = self.path + '.html'
 
             if "image" or "font" in mimetype:
-                f = open(curdir + sep + self.path, 'rb')
+                f = open(self.path, 'rb')
                 self.send_response(200)
                 self.send_header('Content-type', mimetype)
                 self.end_headers()
                 self.wfile.write(bytes(f.read()))
                 f.close()
             else:
-                f = open(curdir + sep + self.path)
+                f = open(self.path)
                 self.send_response(200)
                 self.send_header('Content-type', mimetype)
                 self.end_headers()
@@ -58,9 +65,11 @@ class SimpleServer(BaseHTTPRequestHandler):
 
 
 class WebServer:
-    def __init__(self, host, port):
+    def __init__(self, host, port, path):
         self.host = host
         self.port = port
+        global ext_path
+        ext_path = path
         self.server = HTTPServer((self.host, int(self.port)), SimpleServer)
 
     def start_server(self):
