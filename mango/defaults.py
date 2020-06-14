@@ -1,3 +1,24 @@
+default_config_options = """
+        [general]
+        title = "Default site"
+        base_url = "http://example.com"
+
+        [build]
+        content_folder = "content"
+        template_folder = "templates"
+        output_folder = "output"
+        output_post_folder = "output/posts"
+        static_folder = "static"
+        ignore_files = ["layout.html", "post.html"]
+
+        [sitemap]
+        use_html_extension = "False"
+
+        [server]
+        host = "localhost"
+        port = 8080
+    """
+
 default_index = '''
     {% extends "layout.html" %}
 
