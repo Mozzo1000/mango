@@ -17,7 +17,7 @@ class Sitemap:
                 url = url.replace('index.html', '')
         if urlparse(url).path == '/index':
             url = url.replace('/index', '')
-        
+
         doc = ET.SubElement(self.root, 'url')
         ET.SubElement(doc, 'loc').text = url
         ET.SubElement(doc, 'lastmod').text = modified

@@ -14,6 +14,7 @@ def get_version():
     else:
         raise RuntimeError("Unable to find version string.")
 
+
 setup(
     name='mango',
     version=get_version(),
