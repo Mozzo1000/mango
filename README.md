@@ -49,6 +49,9 @@ If no configuration file is found or supplied via the `--config` flag, a file wi
 |------|
 |flake8|
  
+### Install development dependencies
+To install all development related dependencies, run `pip install -e .[dev]` in the root directory of this project. 
+ 
 ### Run linter
 We use the flake8 to check for linting errors in our code. Inside tox.ini there is a configuration set that `flake8`
 will automatically use.
