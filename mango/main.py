@@ -10,7 +10,7 @@ from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from distutils.dir_util import copy_tree
 from mango.defaults import create_default_files, default_config_options
-from mango.config import get_config_setting, generate_config, check_config_exists, set_config_file, get_config_file
+from mango.config import get_config_setting, generate_config, check_config_exists, set_config_file
 from mango.httpserver import WebServer
 from mango.sitemap import Sitemap
 from mango.generator import Generator

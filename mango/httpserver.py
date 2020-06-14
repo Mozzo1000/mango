@@ -1,6 +1,5 @@
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from os import curdir, sep
 from os.path import splitext
 
 ext_path = ''
