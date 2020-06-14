@@ -53,7 +53,7 @@ If no configuration file is found or supplied via the `--config` flag, a file wi
 To install all development related dependencies, run `pip install -e .[dev]` in the root directory of this project. 
  
 ### Run linter
-We use the flake8 to check for linting errors in our code. Inside tox.ini there is a configuration set that `flake8`
+We use flake8 to check for linting errors in our code. Inside tox.ini there is a configuration set that `flake8`
 will automatically use.
 
 Just run `flake8` in the root directory to run the linter.
