@@ -47,6 +47,8 @@ def main():
     elif check_config_exists(location=working_path):
         if check_config_exists(location=working_path) == 'OTHER_DIR':
             set_config_file(working_path + 'mango.toml')
+        else:
+            set_config_file()
     else:
         set_config_file(default_config_options, use_default=True)
 
