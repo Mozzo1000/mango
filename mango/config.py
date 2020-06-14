@@ -16,14 +16,20 @@ def get_config_file():
     return os.path.abspath(FILE_PATH)
 
 
-def set_config_file(file='mango.toml'):
+def set_config_file(file='mango.toml', use_default=False):
     global FILE_PATH
     FILE_PATH = file
-    print(f'[CONFIG] Using config file: {file}')
+    if use_default:
+        print('[CONFIG] No config file found, using default config')
+    else:
+        print(f'[CONFIG] Using config file: {file}')
 
 
 def get_config():
-    config = toml.load(FILE_PATH)
+    if os.path.isfile(FILE_PATH):
+        config = toml.load(FILE_PATH)
+    else:
+        config = toml.loads(FILE_PATH)
     return config
 
 

@@ -9,7 +9,7 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from distutils.dir_util import copy_tree
-from mango.defaults import create_default_files
+from mango.defaults import create_default_files, default_config_options
 from mango.config import get_config_setting, generate_config, check_config_exists, set_config_file, get_config_file
 from mango.httpserver import WebServer
 from mango.sitemap import Sitemap
@@ -48,8 +48,7 @@ def main():
         if check_config_exists(location=working_path) == 'OTHER_DIR':
             set_config_file(working_path + 'mango.toml')
     else:
-        print('No config file found, creating default config file.')
-        generate_config(working_path)
+        set_config_file(default_config_options, use_default=True)
 
     if parser.parse_args().rebuild:
         rebuild(True if parser.parse_args().minify is True else False, folder=working_path,
