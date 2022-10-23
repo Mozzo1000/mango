@@ -36,7 +36,7 @@ def main():
 
     if parser.parse_args().path:
         working_path = parser.parse_args().path
-        if parser.parse_args().path is '.':
+        if parser.parse_args().path == '.':
             working_path = os.getcwd() + '/'
         print(f'[MAIN] Using path: {working_path}')
         WORKING_PATH = working_path
