@@ -141,7 +141,7 @@ def rebuild(minify, folder='', verbose=False):
             page.generate_page(html_files.replace('.html', ''))
 
     post_page = Generator(folder + get_config_setting('build', 'output_post_folder'), folder + 'templates',
-                          get_config_setting('general', 'base_url'), posts_metadata, sitemap,
+                          os.path.join(get_config_setting('general', 'base_url'), "posts"), posts_metadata, sitemap,
                           site_title=get_config_setting('general', 'title'), minify_code=minify)
 
     for post in POSTS:
