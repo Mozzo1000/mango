@@ -23,7 +23,7 @@ setup(
     description='A static site generator developed specifically for andreasbackstrom.se',
     license='Apache-2.0',
     keywords='static site generator jinja2 web markdown',
-    install_requires=['markdown2==2.4.6', 'jinja2==3.1.2', 'htmlmin==0.1.12',
+    install_requires=['markdown2==2.4.6', 'jinja2==3.1.3', 'htmlmin==0.1.12',
                       'csscompressor==0.9.5', 'rjsmin==1.2.1', 'watchdog==2.1.9',
                       'toml==0.10.2'],
     extras_require={
