@@ -1,0 +1,38 @@
+[project]
+name = "mango"
+version = "1.2.0"
+authors = [
+  { name="Andreas Backström", email="mozzo242@gmail.com" },
+]
+description = "A static site generator developed specifically for andreasbackstrom.se"
+readme = "README.md"
+requires-python = ">=3.10"
+keywords= ["static site generator", "jinja2", "web", "markdown"]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache License",
+    "Operating System :: OS Independent"
+]
+dependencies = [
+    "markdown2",
+    'jinja2',
+    'htmlmin',
+    'csscompressor',
+    'rjsmin',
+    'watchdog',
+    'toml'
+]
+[project.urls]
+Homepage = "https://github.com/Mozzo1000/mango"
+Issues = "https://github.com/Mozzo1000/mango/issues"
+
+[project.scripts]
+mango = "mango.main:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages=["mango"]
